@@ -8,6 +8,7 @@
 #import "NewsViewModel.h"
 #import "Article.h"
 #import "NewsConstants.h"
+#import "DateExtension.h"
 
 @implementation NewsViewModel
 
@@ -32,13 +33,12 @@
 
     NSMutableArray* response = [dict valueForKey:ARTICLE_ENTITY_NAME];
 
+    NSLog(@"%@", response);
     for(NSDictionary *obj in response){
         Article *articleList = [[Article alloc]initWithDictionary:obj];
         [articles addObject:articleList];
     }
-
     successBlock(articles);
 }
-
 
 @end

@@ -10,10 +10,12 @@
 #import "NewsViewModel.h"
 #import "NewsConstants.h"
 #import "ArticleCell.h"
+#import "DateExtension.h"
 
 @interface NewsViewController()
 
 @property (nonatomic,retain) NSMutableArray *articles;
+@property (nonatomic,retain) DateExtension* extension;
 
 @end
 
@@ -32,10 +34,15 @@
     [super viewDidLoad];
 
     self.navigationItem.title = NEWS_APP_TITLE;
+    self.extension = [[DateExtension alloc]init];
 
     [NewsViewModel fetchArtices:nil success:^(NSArray *arr)
      {
-        self.articles = [[NSMutableArray alloc]initWithArray:arr];
+        NSDateFormatter *df = [[NSDateFormatter alloc] init];
+        [df setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss'Z'"]; // MMM dd, yyyy
+
+        NSArray *sortedArray = [self.extension sortingDatabyDate: arr];
+        self.articles = [[NSMutableArray alloc]initWithArray:sortedArray];
     }];
 
     [self.newsTableView registerNib:[UINib nibWithNibName:NEWS_ARTICLE_NIB_NAME bundle:nil] forCellReuseIdentifier:TABLE_CELL_IDENTIFIER];
@@ -60,9 +67,11 @@
     }
 
     Article *model = self.articles[indexPath.row];
-
     cell.articleTitle.text = model.title;
-    cell.articlePublishedDate.text = model.publishedAt;
+
+
+    NSDate *date = [self.extension convertStringToDate: model.publishedAt];
+    cell.articlePublishedDate.text = [self.extension convertDateToString: date];
 
     dispatch_async(dispatch_get_global_queue(0,0), ^{
             NSData * data = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: model.urlToImage]];
